@@ -1,0 +1,65 @@
+# Author: Abuzar
+# Space Insurance ETL Configuration
+# Feature 1: Daten-Veredelung (Data Refinement)
+
+database:
+  type: "postgresql"
+  host: "localhost"
+  port: 5432
+  name: "space_insurance_db"
+  user: "postgres"
+  password: "postgres"
+  
+  # Alternative: SQLAlchemy URL
+  url: "postgresql://postgres:postgres@localhost:5432/space_insurance_db"
+
+# Dateipfade
+paths:
+  csv_raw: "data_src/raw/neo.csv"
+  db_location: "data_src/processed/"
+
+# Feature 1: Daten-Veredelung - Transformations-Parameter
+transformations:
+  # Einheiten-Normalisierung
+  units:
+    velocity_to_km_s: 3.6     # km/h → km/s (Teile durch 3.6)
+  
+  # Bereinigung
+  cleaning:
+    remove_duplicates: true
+    min_velocity: 0.1         # Entferne Objekte mit Geschwindigkeit ≈ 0 km/s
+    min_distance: 1000        # Mindestentfernung in km
+
+# SQL Queries
+queries:
+  create_table: |
+    CREATE TABLE IF NOT EXISTS space_objects (
+      id BIGINT PRIMARY KEY,
+      name TEXT NOT NULL,
+      est_diameter_min REAL NOT NULL,
+      est_diameter_max REAL NOT NULL,
+      avg_diameter REAL NOT NULL,
+      relative_velocity REAL NOT NULL,
+      velocity_km_s REAL NOT NULL,
+      miss_distance REAL NOT NULL,
+      orbiting_body TEXT,
+      sentry_object BOOLEAN,
+      absolute_magnitude REAL,
+      hazardous BOOLEAN NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  
+  create_indexes: |
+    CREATE INDEX IF NOT EXISTS idx_avg_diameter ON space_objects(avg_diameter DESC);
+    CREATE INDEX IF NOT EXISTS idx_velocity ON space_objects(velocity_km_s DESC);
+    CREATE INDEX IF NOT EXISTS idx_hazardous ON space_objects(hazardous);
+    CREATE INDEX IF NOT EXISTS idx_distance ON space_objects(miss_distance);
+  
+  insert_data: |
+    INSERT INTO space_objects (
+      id, name, est_diameter_min, est_diameter_max, avg_diameter,
+      relative_velocity, velocity_km_s, miss_distance, orbiting_body,
+      sentry_object, absolute_magnitude, hazardous
+    ) VALUES (
+      %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+    );
