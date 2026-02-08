@@ -12,13 +12,13 @@ import os
 from utils.config_loader import ConfigLoader
 from data_processor.dataframe import Dataframe
 from data_processor.data_transformer import DataTransformer
-from data_processor.postgres_database import PostgresDatabase
+from data_processor.sqlite_database import SqliteDatabase
 
 
 def main():
     """
     Hauptfunktion: Koordiniert Feature 1 (ETL).
-    Pipeline: CSV laden → Transformieren → In PostgreSQL laden
+    Pipeline: CSV laden → Transformieren → In SQLite laden
     """
 
     try:
@@ -40,15 +40,20 @@ def main():
         transformed_data = transformer.transform()
         print(f"Transformiert: {len(transformed_data)} Objekte")
 
-        # In PostgreSQL laden
-        db_url = config_loader.get_database_url()
+        # In SQLite laden
+        db_path = config_loader.get_database_path()
         create_table_query = config_loader.get_create_table_query()
 
-        with PostgresDatabase(db_url) as db:
+        # Erstelle Ordner falls nicht existiert
+        db_dir = os.path.dirname(db_path)
+        if not os.path.exists(db_dir):
+            os.makedirs(db_dir)
+
+        with SqliteDatabase(db_path) as db:
             db.create_table(create_table_query)
             db.insert_data(transformed_data, "space_objects")
 
-        print("Erfolgreich abgeschlossen!")
+        print(f"Erfolgreich abgeschlossen! DB: {db_path}")
 
     except Exception as e:
         print(f"Fehler: {e}")

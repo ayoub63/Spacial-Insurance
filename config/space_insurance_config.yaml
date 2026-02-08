@@ -2,7 +2,8 @@
 # Space Insurance ETL Configuration
 
 database:
-  url: "postgresql://postgres:postgres@localhost:5432/space_insurance_db"
+  location: "data_src/processed/"
+  path: "data_src/processed/space_insurance.db"
 
 paths:
   csv_raw: "data_src/raw/neo.csv"
@@ -10,7 +11,7 @@ paths:
 queries:
   create_table: |
     CREATE TABLE IF NOT EXISTS space_objects (
-      id BIGINT PRIMARY KEY,
+      id INTEGER PRIMARY KEY,
       name TEXT NOT NULL,
       est_diameter_min REAL NOT NULL,
       est_diameter_max REAL NOT NULL,
@@ -20,7 +21,7 @@ queries:
       miss_distance REAL NOT NULL,
       orbiting_body TEXT,
       absolute_magnitude REAL,
-      hazardous BOOLEAN NOT NULL,
-      sentry_object BOOLEAN,
+      hazardous INTEGER NOT NULL,
+      sentry_object INTEGER,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );

@@ -25,13 +25,13 @@ class ConfigLoader:
         with open(self.config_path, "r", encoding="utf-8") as file:
             return yaml.safe_load(file)
 
-    def get_database_url(self):
+    def get_database_path(self):
         """
-        Gibt die Datenbank-URL zurück.
-        :return: PostgreSQL Connection String
+        Gibt den Datenbank-Pfad zurück.
+        :return: Pfad zur SQLite-Datenbank
         """
         db = self.yaml_config.get("database", {})
-        return db.get("url")
+        return db.get("path")
 
     def get_csv_path(self):
         """
