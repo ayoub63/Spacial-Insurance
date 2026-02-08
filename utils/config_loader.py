@@ -1,68 +1,50 @@
 # Author: Abuzar
 # utils/config_loader.py
 
-"""
-ConfigLoader - Lädt und verwaltet die YAML-Konfigurationsdatei.
-
-Basiert auf dem Restaurant Violations Beispielprojekt des Professors.
-"""
+"""Lädt und verwaltet die YAML-Konfigurationsdatei."""
 
 import yaml
-from typing import Dict, Any
 
 
 class ConfigLoader:
-    """
-    Lädt und verwaltet die YAML-Konfigurationsdatei.
-    Stellt Zugriffsmethoden für verschiedene Konfigurationsbereiche bereit.
-    """
-    
-    def __init__(self, config_path: str) -> None:
+    """Lädt und verwaltet die YAML-Konfigurationsdatei."""
+
+    def __init__(self, config_path: str):
         """
         Initialisiert den ConfigLoader.
-        
         :param config_path: Pfad zur YAML-Konfigurationsdatei
         """
         self.config_path = config_path
         self.yaml_config = self._load_yaml()
 
-    def _load_yaml(self) -> Dict[str, Any]:
+    def _load_yaml(self):
         """
-        Lädt die YAML-Datei und gibt den Inhalt als Dictionary zurück.
-        
-        :return: Dictionary mit allen Konfigurationen
+        Lädt die YAML-Datei.
+        :return: Dictionary mit Konfigurationen
         """
         with open(self.config_path, "r", encoding="utf-8") as file:
             return yaml.safe_load(file)
 
-    def get_database_config(self) -> Dict[str, Any]:
+    def get_database_url(self):
         """
-        Gibt die Datenbank-Konfiguration zurück.
-        
-        :return: Dictionary mit PostgreSQL Connection Details
+        Gibt die Datenbank-URL zurück.
+        :return: PostgreSQL Connection String
         """
-        return self.yaml_config.get("database", {})
+        db = self.yaml_config.get("database", {})
+        return db.get("url")
 
-    def get_paths_config(self) -> Dict[str, str]:
+    def get_csv_path(self):
         """
-        Gibt die Dateipfad-Konfiguration zurück.
-        
-        :return: Dictionary mit Dateipfaden
+        Gibt den CSV-Dateipfad zurück.
+        :return: Pfad zur CSV-Datei
         """
-        return self.yaml_config.get("paths", {})
+        paths = self.yaml_config.get("paths", {})
+        return paths.get("csv_raw")
 
-    def get_transformations_config(self) -> Dict[str, Any]:
+    def get_create_table_query(self):
         """
-        Gibt die Transformations-Parameter zurück (Feature 1).
-        
-        :return: Dictionary mit Einheiten und Bereinigungsregeln
+        Gibt die CREATE TABLE Query zurück.
+        :return: SQL CREATE TABLE Statement
         """
-        return self.yaml_config.get("transformations", {})
-    
-    def get_queries(self) -> Dict[str, str]:
-        """
-        Gibt alle SQL-Queries zurück.
-        
-        :return: Dictionary mit SQL Statements
-        """
-        return self.yaml_config.get("queries", {})
+        queries = self.yaml_config.get("queries", {})
+        return queries.get("create_table")
