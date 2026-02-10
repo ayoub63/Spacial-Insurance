@@ -2,7 +2,6 @@
 # Space Insurance ETL Configuration
 
 database:
-  location: "data_src/processed/"
   path: "data_src/processed/space_insurance.db"
 
 paths:

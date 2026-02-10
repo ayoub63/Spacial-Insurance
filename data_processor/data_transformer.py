@@ -1,9 +1,8 @@
-# Author: Abuzar
+# Author: Saidabuzar Zaher
 # data_processor/data_transformer.py
 
 """
 FEATURE 1: Daten-Veredelung (Data Refinement)
-Verantwortlich: Abuzar
 """
 
 import pandas as pd
@@ -21,7 +20,7 @@ class DataTransformer:
     def transform(self) -> pd.DataFrame:
         """
         Transformiert die Daten:
-        - Duplikate entfernen (gleiche ID)
+        - Worst-Case Szenario pro Asteroid behalten (kleinste miss_distance)
         - Fehlende Werte behandeln
         - Durchschnitts-Durchmesser berechnen
         - Geschwindigkeit normieren (km/h → km/s)
@@ -30,7 +29,12 @@ class DataTransformer:
         - Spalten auswählen
         :return: Transformierter DataFrame
         """
-        # Duplikate basierend auf ID entfernen (behalte erste Occurrence)
+        # Sortiere nach miss_distance (kleinste = gefährlichste zuerst)
+        # Rationale: Gleicher Asteroid wurde mehrfach beobachtet mit verschiedenen Entfernungen
+        # Wir behalten die gefährlichste Annäherung (Worst Case)
+        self.df.data = self.df.data.sort_values('miss_distance', ascending=True)
+
+        # Duplikate basierend auf ID entfernen (behalte gefährlichste = erste nach Sortierung)
         self.df.data = self.df.data.drop_duplicates(subset=['id'], keep='first')
 
         # Fehlende Werte in kritischen numerischen Spalten entfernen
