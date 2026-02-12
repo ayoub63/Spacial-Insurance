@@ -39,9 +39,23 @@ if has_column(table, "risk_score"):
 else:
     st.info("risk_score noch nicht vorhanden")
 
+
 st.subheader("Impact vs Distance (Risk Radar)")
 
 has_impact = has_column("space_objects", "impact")
 has_distance = has_column("space_objects", "miss_distance")
 
+if has_impact and has_distance:
+    df_scatter = query_df("""
+        SELECT miss_distance, impact
+        FROM space_objects
+        WHERE miss_distance IS NOT NULL
+          AND impact IS NOT NULL;
+    """)
+
+    sc = pl.scatter(df_scatter, x="miss_distance", y="impact")
+    st.plotly_chart(sc, use_container_width=True)
+
+else:
+    st.info("warte auf impact spalte")
 
