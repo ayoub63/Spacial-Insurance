@@ -7,22 +7,12 @@ st.set_page_config(
     layout="wide"
 )
 
-df_count = query_df("SELECT COUNT(*) AS total_objects FROM space_objects;")
-
-total = df_count["total_objects"][0]
-
-st.metric("Total objects", total)
-
-df_cols = query_df("PRAGMA table_info(space_objects);")
-st.write(df_cols)
-
-
-
-
 st.title("Spacial-Insurance Dashboard")
-st.markdown("""
-Willkommen zum **mehrseitigen Analyse-Dashboard**.
 
-Nutze die Navigation links, um:
-- eine Übersicht zu sehen
-""")
+st.sidebar.title("Einstellungen")
+tolerance = st.sidebar.slider("Max Risk Tolerance", 0, 100, 80)
+base_premium = st.sidebar.slider("Basis-Prämie in Euro", 0, 100000, 1000)
+
+st.write("Aktuelle Einstellungen: ")
+st.write("Tolerance: ", tolerance)
+st.write("Base premium: ", base_premium)
