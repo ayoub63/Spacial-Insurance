@@ -1,6 +1,9 @@
 import streamlit as st
 from queries import query_df
 import pandas as pd
+import plotly as pl
+from queries import query_df, has_column
+
 
 st.set_page_config(
     page_title="Dashboard",
@@ -24,3 +27,21 @@ col1.metric("Durchschn. Risk Score", "Platzhalter")
 col2.metric("Max. Risk Score", "platzhalter")
 col3.metric("Objekte > Toleranz", "platzhalter")
 col4.metric("Premien Summe (€)", "platzhalter")
+
+table = "space_objects"
+
+st.subheader("Risk Score Verteilung")
+
+if has_column(table, "risk_score"):
+    df = query_df(f"SELECT risk_score FROM {table} WHERE risk_score IS NOT NULL;")
+    his = pl.histogram(df, x="risk_score", nbins=20)
+    st.plotly_chart(his, use_container_width=True)
+else:
+    st.info("risk_score noch nicht vorhanden")
+
+st.subheader("Impact vs Distance (Risk Radar)")
+
+has_impact = has_column("space_objects", "impact")
+has_distance = has_column("space_objects", "miss_distance")
+
+

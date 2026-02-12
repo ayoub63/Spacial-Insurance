@@ -10,3 +10,7 @@ def query_df(sql):
     conn.close()
     return df
 
+def has_column(table, col):
+    df = query_df(f"PRAGMA table_info({table});")
+    return col in df["name"].tolist()
+
