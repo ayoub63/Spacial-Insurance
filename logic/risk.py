@@ -88,7 +88,7 @@ class RiskEngine:
         # Preis berechnen (Basispreis + Faktor * Risk Score)
         # Nur für genehmigte Asteroiden, sonst 0
         enriched_df['premium_eur'] = np.where(
-            enriched_df['policy_status'] == 'APPROVED',
+            enriched_df['policy_status'] == 'GENEHMIGT',
             self.base_premium + (self.base_premium * enriched_df['risk_score'] * 5),
             0.0
         )
