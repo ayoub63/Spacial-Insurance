@@ -18,7 +18,7 @@ class RiskEngine:
     """
     Kern-Logik (Regelbasiert):
     Berechnet physikalische Eigenschaften (Masse, Energie)
-    Prüft NASA-Flag 'hazardous' als Ausschlusskriterium
+    Prüft NASA-Spalte 'hazardous' als Ausschlusskriterium
     Berechnet Versicherungsprämien für den Rest
     """
 
