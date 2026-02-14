@@ -71,3 +71,24 @@ class RiskEngine:
         norm_energy = log_energy / log_energy.max()
         # Bei Distanz: 1 - Wert, weil kleine Distanz = hohes Risiko
         norm_dist = 1 - (log_dist / log_dist.max())
+
+        # Gewichtung: 70% Energie (Zerstörungskraft), 30% Wahrscheinlichkeit (Nähe),
+        # haben wir einfach so festgelegt fiktiv
+        enriched_df['risk_score'] = (0.7 * norm_energy + 0.3 * norm_dist) * 100
+
+        # Policy Status
+        # Logik: Wir vertrauen der NASA. Wenn 'hazardous' == True -> ABGELEHNT.
+        enriched_df['policy_status'] = np.where(
+            enriched_df['hazardous'] == True,
+            'ABGELEHNT',
+            'GENEHMIGT'
+        )
+
+        # Pricing
+        # Preis berechnen (Basispreis + Faktor * Risk Score)
+        # Nur für genehmigte Asteroiden, sonst 0
+        enriched_df['premium_eur'] = np.where(
+            enriched_df['policy_status'] == 'APPROVED',
+            self.base_premium + (self.base_premium * enriched_df['risk_score'] * 5),
+            0.0
+        )
