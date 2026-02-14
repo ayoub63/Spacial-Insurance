@@ -1,3 +1,5 @@
+# Author: Adam Ibrahimkhel
+
 import sqlite3
 
 def get_db():

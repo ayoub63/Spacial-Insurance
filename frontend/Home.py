@@ -1,3 +1,5 @@
+# Author: Adam Ibrahimkhel
+
 import streamlit as st
 from queries import query_df
 import pandas as pd
