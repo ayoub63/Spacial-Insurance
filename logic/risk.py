@@ -53,3 +53,21 @@ class RiskEngine:
         data['energy_tj'] = data['energy_joule'] / 1e12
 
         return data
+
+    @log_execution
+    @time_execution
+    def evaluate_portfolio(self, df: pd.DataFrame) -> pd.DataFrame:
+        # Physik berechnen
+        enriched_df = self.calculate_physics(df)
+
+        # Risk Score Berechnung (0 - 100)
+        # Auch abgelehnte Objekte bekommen einen Score
+
+        # Logarithmus, um extreme Unterschiede bei Energie zu glätten
+        log_energy = np.log1p(enriched_df['energy_tj'])
+        log_dist = np.log1p(enriched_df['miss_distance'])
+
+        # Normalisierung
+        norm_energy = log_energy / log_energy.max()
+        # Bei Distanz: 1 - Wert, weil kleine Distanz = hohes Risiko
+        norm_dist = 1 - (log_dist / log_dist.max())
