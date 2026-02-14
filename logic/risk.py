@@ -14,7 +14,6 @@ from utils.decorators import log_execution, time_execution
 # Logger für dieses Modul
 logger = logging.getLogger(__name__)
 
-
 class RiskEngine:
     """
     Kern-Logik (Regelbasiert):
