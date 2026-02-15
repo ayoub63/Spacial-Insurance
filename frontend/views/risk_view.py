@@ -3,9 +3,6 @@ import plotly.express as px
 
 
 def show(df, avg_risk, max_risk, critical_objects, max_impact, tolerance):
-    """
-    Zeigt den Risiko & Physik Tab an.
-    """
     st.markdown("Risiko-Analyse")
 
     # KPI Zeile

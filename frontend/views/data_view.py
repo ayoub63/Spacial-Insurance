@@ -2,9 +2,6 @@ import streamlit as st
 
 
 def show(df):
-    """
-    Zeigt den Daten-Explorer Tab an.
-    """
     st.markdown("Top 10 Gefährlichste Objekte")
 
     # Top 10 Tabelle sortiert nach Risiko

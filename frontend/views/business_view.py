@@ -3,9 +3,6 @@ import plotly.express as px
 
 
 def show(df, total_premium, approval_rate, avg_premium, declined_count):
-    """
-    Zeigt den Business & Finanzen Tab an.
-    """
     st.markdown("Finanz-Übersicht")
 
     # KPI Zeile
