@@ -1,9 +1,5 @@
 # Autor: Ayoub
 
-"""
-FEATURE 2: Risk Engine (Deterministic)
-Logik-Schicht für Space Insurance ohne ML.
-"""
 
 import pandas as pd
 import numpy as np
