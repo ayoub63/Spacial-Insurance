@@ -1,32 +1,25 @@
-# Author: Abuzar
-
-#SQLite Database Context Manager
+# Autor: Saidabuzar Zaher
 
 import sqlite3
 import pandas as pd
 
-
 class SqliteDatabase:
-     #Context Manager für SQLite-Datenbank Operationen.
-
+    #Context Manager für SQLite-Datenbank Operationen
     conn = None
     cursor = None
 
     def __init__(self, db_path: str):
-        """
-        Initialisiert den SQLite Context Manager.
-        :param db_path: Pfad zur SQLite-Datenbank Datei
-        """
+        # Initialisiert den SQLite Context Manager
         self.db_path = db_path
 
     def __enter__(self):
-        #Öffnet die Verbindung zur Datenbank.
+        # Öffnet die Verbindung zur Datenbank.
         self.conn = sqlite3.connect(self.db_path)
         self.cursor = self.conn.cursor()
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
-        #Schließt die Verbindung zur Datenbank.
+        # Schließt die Verbindung zur Datenbank.
         if exc_type is None:
             self.conn.commit()
         else:
@@ -38,19 +31,12 @@ class SqliteDatabase:
             self.conn.close()
 
     def create_table(self, query: str):
-        """
-        Erstellt eine Tabelle.
-        :param query: SQL CREATE TABLE Statement
-        """
+        # Erstellt eine Tabelle
         self.cursor.execute(query)
         self.conn.commit()
 
     def insert_data(self, data: pd.DataFrame, table_name: str):
-        """
-        Fügt Daten in die Tabelle ein.
-        :param data: DataFrame mit Daten
-        :param table_name: Name der Ziel-Tabelle
-        """
+        # Fügt Daten in die Tabelle ein
         records = []
         for _, row in data.iterrows():
             records.append((

@@ -1,11 +1,11 @@
-# Author: Adam Ibrahimkhel & Ayoub (Refactored with Views)
+# Autor: Adam Ibrahimkhel
 
 import streamlit as st
 import pandas as pd
 import sys
 import os
 
-# --- PFAD-SETUP ---
+# Pfad Setup
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 if parent_dir not in sys.path:

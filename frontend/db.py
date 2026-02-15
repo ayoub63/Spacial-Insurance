@@ -1,4 +1,4 @@
-# Author: Adam Ibrahimkhel
+# Autor: Adam Ibrahimkhel
 
 import sqlite3
 import os

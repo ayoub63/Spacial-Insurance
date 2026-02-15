@@ -1,10 +1,6 @@
 # Author: Abuzar
 # etl.py
 
-"""
-Space Insurance ETL Pipeline - Feature 1
-Team: Abuzar (ETL), Ayoub (Risk), Adam (Dashboard)
-"""
 
 import sys
 import os
