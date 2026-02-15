@@ -1,94 +1,73 @@
 # Author: Adam Ibrahimkhel
 
 import streamlit as st
-from queries import query_df
 import pandas as pd
-import plotly as pl
-from queries import query_df, has_column
+import plotly.express as px
+import sys
+import os
 
+# Pfad-Fix
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+if parent_dir not in sys.path:
+    sys.path.append(parent_dir)
 
-st.set_page_config(
-    page_title="Dashboard",
-    layout="wide"
-)
+from frontend.db import get_db
+# WICHTIG: Importiert aus risk.py
+from logic.risk import RiskEngine
 
-st.title("Spacial-Insurance Dashboard")
+st.set_page_config(page_title="SpaceGuard Dashboard", layout="wide")
 
-st.sidebar.title("Einstellungen")
-tolerance = st.sidebar.slider("Max Risk Tolerance", 0, 100, 80)
-base_premium = st.sidebar.number_input("Basis-Prämie in Euro", 0, 100000, 1000)
+st.title("SpaceGuard Dashboard (Lowkirk)")
 
-st.write("Aktuelle Einstellungen: ")
-st.write("Toleranz: ", tolerance)
-st.write("Basis Prämie: ", base_premium)
+# Einstellungen
+st.sidebar.header("Einstellungen")
+base_premium = st.sidebar.number_input("Basis-Prämie (€)", value=10000)
+risk_tolerance = st.sidebar.slider("Toleranz", 0, 100, 80)
 
+# Daten laden
+@st.cache_data
+def load_data():
+    conn = get_db()
+    try:
+        query = "SELECT * FROM space_objects"
+        df = pd.read_sql(query, conn)
+        return df
+    finally:
+        conn.close()
 
-col1, col2, col3, col4 = st.columns(4)
+df_raw = load_data()
 
-col1.metric("Durchschn. Risk Score", "Platzhalter")
-col2.metric("Max. Risk Score", "platzhalter")
-col3.metric("Objekte > Toleranz", "platzhalter")
-col4.metric("Premien Summe (€)", "platzhalter")
+if df_raw.empty:
+    st.error("Datenbank ist leer. Führe 'etl.py' aus!")
+    st.stop()
 
-table = "space_objects"
+#LOGIK
+try:
+    engine = RiskEngine(base_premium=base_premium)
+    df_enriched = engine.evaluate_portfolio(df_raw)
+except Exception as e:
+    st.error(f"Fehler in der RiskEngine: {e}")
+    st.stop()
 
-st.subheader("Risk Score Verteilung")
-
-if has_column(table, "risk_score"):
-    df = query_df(f"SELECT risk_score FROM {table} WHERE risk_score IS NOT NULL;")
-    his = pl.histogram(df, x="risk_score", nbins=20)
-    st.plotly_chart(his, use_container_width=True)
+# --- DEBUGGING CHECK ---
+if df_enriched is None:
+    st.error(" Fehler: RiskEngine hat 'None' zurückgegeben! Prüfe logic/risk.py")
+    st.stop()
 else:
-    st.info("risk_score noch nicht vorhanden")
+    st.success(f" Erfolg! {len(df_enriched)} Datenpunkte berechnet")
 
+# --- DASHBOARD ---
+total_premium = df_enriched['premium_eur'].sum()
+avg_risk = df_enriched['risk_score'].mean()
+crit_count = len(df_enriched[df_enriched['risk_score'] > risk_tolerance])
+declined_count = len(df_enriched[df_enriched['policy_status'] == 'ABGELEHNT'])
 
-st.subheader("Impact vs Distanz (Risk Radar)")
+c1, c2, c3, c4 = st.columns(4)
+c1.metric("Volumen", f"{total_premium:,.0f} €")
+c2.metric("Ø Risk", f"{avg_risk:.2f}")
+c3.metric("Kritisch", f"{crit_count}")
+c4.metric("Abgelehnt", f"{declined_count}")
 
-has_impact = has_column("space_objects", "impact")
-has_distance = has_column("space_objects", "miss_distance")
-
-if has_impact and has_distance:
-    df_scatter = query_df("""
-        SELECT miss_distance, impact
-        FROM space_objects
-        WHERE miss_distance IS NOT NULL
-          AND impact IS NOT NULL;
-    """)
-
-    sc = pl.scatter(df_scatter, x="miss_distance", y="impact")
-    st.plotly_chart(sc, use_container_width=True)
-
-else:
-    st.info("warte auf impact spalte")
-
-
-
-st.subheader("Top 10 Risiko Objekte")
-
-if has_column("space_objects", "risk_score"):
-    df_top10 = query_df("""
-        SELECT name, risk_score, miss_distance, velocity_km_s, avg_diameter
-        FROM space_objects
-        WHERE risk_score IS NOT NULL
-        ORDER BY risk_score DESC
-        LIMIT 10;
-    """)
-    st.dataframe(df_top10, use_container_width=True)
-else:
-    st.info("risk score fehlt")
-
-
-st.subheader("Impact Breakdown")
-
-if has_column("space_objects", "impact"):
-    df_impact = query_df("""
-        SELECT impact
-        FROM space_objects
-        WHERE impact IS NOT NULL;
-    """)
-    bdimpact = pl.histogram(df_impact, x="impact", nbins=30)
-    st.plotly_chart(bdimpact, use_container_width=True)
-else:
-    st.info("Impact fehlt")
-
-
+# Tabelle anzeigen
+st.dataframe(df_enriched.head(50))
