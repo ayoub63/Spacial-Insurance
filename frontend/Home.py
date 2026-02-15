@@ -31,7 +31,7 @@ base_premium = st.sidebar.number_input("Basis-Prämie (€)", 1000, 1000000, 100
 st.sidebar.markdown("---")
 st.sidebar.info(f"**Aktueller Status:**\nToleranz: {tolerance}\nBasis: {base_premium:,.0f} €")
 
-st.title("🛡️ SpaceGuard Insurance Dashboard")
+st.title("SpaceGuard Insurance Dashboard")
 st.markdown("Automatisierte Risiko-Bewertung für Near-Earth Objects (NEOs)")
 
 # --- DATEN LADEN ---
@@ -72,7 +72,7 @@ critical_objects = len(df_enriched[df_enriched['risk_score'] > tolerance])
 max_impact = df_enriched['impact'].max()
 
 # --- TABS & VIEWS AUFRUFEN ---
-tab_biz, tab_risk, tab_data = st.tabs(["💼 Business & Finanzen", "💥 Risiko & Physik", "📋 Daten-Explorer"])
+tab_biz, tab_risk, tab_data = st.tabs(["Business & Finanzen", "Risiko & Physik", "Daten-Explorer"])
 
 with tab_biz:
     business_view.show(df_enriched, total_premium, approval_rate, avg_premium, declined_count)

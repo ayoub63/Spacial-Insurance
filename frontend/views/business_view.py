@@ -6,7 +6,7 @@ def show(df, total_premium, approval_rate, avg_premium, declined_count):
     """
     Zeigt den Business & Finanzen Tab an.
     """
-    st.markdown("### 📊 Finanz-Übersicht")
+    st.markdown("Finanz-Übersicht")
 
     # KPI Zeile
     c1, c2, c3, c4 = st.columns(4)

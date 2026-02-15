@@ -6,19 +6,19 @@ def show(df, avg_risk, max_risk, critical_objects, max_impact, tolerance):
     """
     Zeigt den Risiko & Physik Tab an.
     """
-    st.markdown("### ☄️ Risiko-Analyse")
+    st.markdown("Risiko-Analyse")
 
     # KPI Zeile
     k1, k2, k3, k4 = st.columns(4)
     k1.metric("Ø Risk Score", f"{avg_risk:.2f}")
     k2.metric("Max. Risk Score", f"{max_risk:.2f}")
-    k3.metric("🚨 Kritische Objekte", f"{critical_objects}", help=f"Score > {tolerance}")
-    k4.metric("💥 Max. Impact (TJ)", f"{max_impact:.4f}", help="Maximale Kinetische Energie")
+    k3.metric("Kritische Objekte", f"{critical_objects}", help=f"Score > {tolerance}")
+    k4.metric("Max. Impact (TJ)", f"{max_impact:.4f}", help="Maximale Kinetische Energie")
 
     st.divider()
 
     # Risk Radar
-    st.subheader("🌍 Risk Radar: Distanz vs. Impact")
+    st.subheader("Risk Radar: Distanz vs. Impact")
     st.caption("Logarithmische Skala zur besseren Sichtbarkeit von Extremwerten.")
 
     fig_radar = px.scatter(
