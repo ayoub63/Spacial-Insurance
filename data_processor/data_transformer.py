@@ -1,5 +1,4 @@
 # Author: Saidabuzar Zaher
-# data_processor/data_transformer.py
 
 """
 FEATURE 1: Daten-Veredelung (Data Refinement)

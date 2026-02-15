@@ -1,14 +1,13 @@
 # Author: Abuzar
-# data_processor/sqlite_database.py
 
-"""SQLite Database Context Manager"""
+#SQLite Database Context Manager
 
 import sqlite3
 import pandas as pd
 
 
 class SqliteDatabase:
-    """Context Manager für SQLite-Datenbank Operationen."""
+     #Context Manager für SQLite-Datenbank Operationen.
 
     conn = None
     cursor = None
@@ -21,13 +20,13 @@ class SqliteDatabase:
         self.db_path = db_path
 
     def __enter__(self):
-        """Öffnet die Verbindung zur Datenbank."""
+        #Öffnet die Verbindung zur Datenbank.
         self.conn = sqlite3.connect(self.db_path)
         self.cursor = self.conn.cursor()
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
-        """Schließt die Verbindung zur Datenbank."""
+        #Schließt die Verbindung zur Datenbank.
         if exc_type is None:
             self.conn.commit()
         else:

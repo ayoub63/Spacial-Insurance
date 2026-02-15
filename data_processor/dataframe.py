@@ -1,5 +1,4 @@
 # Author: Abuzar
-# data_processor/dataframe.py
 
 import pandas as pd
 
