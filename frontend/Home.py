@@ -1,31 +1,40 @@
-# Author: Adam Ibrahimkhel
+# Author: Adam Ibrahimkhel & Ayoub (Refactored with Views)
 
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import sys
 import os
 
-# Pfad-Fix
+# --- PFAD-SETUP ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 if parent_dir not in sys.path:
     sys.path.append(parent_dir)
 
 from frontend.db import get_db
-# WICHTIG: Importiert aus risk.py
 from logic.risk import RiskEngine
 
-st.set_page_config(page_title="SpaceGuard Dashboard", layout="wide")
+# --- VIEWS IMPORTIEREN ---
+from views import business_view, risk_view, data_view
 
-st.title("SpaceGuard Dashboard (Lowkirk)")
+# --- PAGE CONFIG ---
+st.set_page_config(
+    page_title="SpaceGuard Dashboard",
+    layout="wide"
+)
 
-# Einstellungen
-st.sidebar.header("Einstellungen")
-base_premium = st.sidebar.number_input("Basis-Prämie (€)", value=10000)
-risk_tolerance = st.sidebar.slider("Toleranz", 0, 100, 80)
 
-# Daten laden
+st.sidebar.title("⚙Einstellungen")
+tolerance = st.sidebar.slider("Max. Risiko-Toleranz", 0, 100, 80)
+base_premium = st.sidebar.number_input("Basis-Prämie (€)", 1000, 1000000, 10000, step=1000)
+
+st.sidebar.markdown("---")
+st.sidebar.info(f"**Aktueller Status:**\nToleranz: {tolerance}\nBasis: {base_premium:,.0f} €")
+
+st.title("🛡️ SpaceGuard Insurance Dashboard")
+st.markdown("Automatisierte Risiko-Bewertung für Near-Earth Objects (NEOs)")
+
+# --- DATEN LADEN ---
 @st.cache_data
 def load_data():
     conn = get_db()
@@ -39,35 +48,37 @@ def load_data():
 df_raw = load_data()
 
 if df_raw.empty:
-    st.error("Datenbank ist leer. Führe 'etl.py' aus!")
+    st.error("Keine Daten gefunden. Bitte 'etl.py' ausführen!")
     st.stop()
 
-#LOGIK
-try:
-    engine = RiskEngine(base_premium=base_premium)
-    df_enriched = engine.evaluate_portfolio(df_raw)
-except Exception as e:
-    st.error(f"Fehler in der RiskEngine: {e}")
-    st.stop()
+# --- LOGIK AUSFÜHREN ---
+engine = RiskEngine(base_premium=base_premium)
+df_enriched = engine.evaluate_portfolio(df_raw)
+df_enriched['impact'] = df_enriched['energy_tj'] # Mapping für Views
 
-# --- DEBUGGING CHECK ---
-if df_enriched is None:
-    st.error(" Fehler: RiskEngine hat 'None' zurückgegeben! Prüfe logic/risk.py")
-    st.stop()
-else:
-    st.success(f" Erfolg! {len(df_enriched)} Datenpunkte berechnet")
-
-# --- DASHBOARD ---
+# --- KPI BERECHNUNG (Zentral im Controller) ---
+# Business KPIs
 total_premium = df_enriched['premium_eur'].sum()
-avg_risk = df_enriched['risk_score'].mean()
-crit_count = len(df_enriched[df_enriched['risk_score'] > risk_tolerance])
+total_objects = len(df_enriched)
 declined_count = len(df_enriched[df_enriched['policy_status'] == 'ABGELEHNT'])
+approved_count = total_objects - declined_count
+approval_rate = (approved_count / total_objects * 100) if total_objects > 0 else 0
+avg_premium = df_enriched[df_enriched['premium_eur'] > 0]['premium_eur'].mean() if approved_count > 0 else 0
 
-c1, c2, c3, c4 = st.columns(4)
-c1.metric("Volumen", f"{total_premium:,.0f} €")
-c2.metric("Ø Risk", f"{avg_risk:.2f}")
-c3.metric("Kritisch", f"{crit_count}")
-c4.metric("Abgelehnt", f"{declined_count}")
+# Risk KPIs
+avg_risk = df_enriched['risk_score'].mean()
+max_risk = df_enriched['risk_score'].max()
+critical_objects = len(df_enriched[df_enriched['risk_score'] > tolerance])
+max_impact = df_enriched['impact'].max()
 
-# Tabelle anzeigen
-st.dataframe(df_enriched.head(50))
+# --- TABS & VIEWS AUFRUFEN ---
+tab_biz, tab_risk, tab_data = st.tabs(["💼 Business & Finanzen", "💥 Risiko & Physik", "📋 Daten-Explorer"])
+
+with tab_biz:
+    business_view.show(df_enriched, total_premium, approval_rate, avg_premium, declined_count)
+
+with tab_risk:
+    risk_view.show(df_enriched, avg_risk, max_risk, critical_objects, max_impact, tolerance)
+
+with tab_data:
+    data_view.show(df_enriched)
